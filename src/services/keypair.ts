@@ -1,6 +1,7 @@
-import nacl from "tweetnacl";
+import nacl from "../../@types/nacl";
+import { sha512 } from "@noble/hashes/sha512";
 
-export function generateKeypair() {
+export function generateKeypair(seed) {
   // 内部の動作
   // crypto.randomBytes(32); にてランダムな32バイトのバイナリデータを生成
   // nacl.box.keyPair = function() {
@@ -10,7 +11,7 @@ export function generateKeypair() {
   //   return {publicKey: pk, secretKey: sk};
   // };
   // 公開鍵は crypto_scalarmult にて ed25519 の公開鍵を生成
-  return nacl.sign.keyPair();
+  return nacl.sign(sha512());
 }
 
 export function sign(message: Uint8Array, secretKey: Uint8Array) {
@@ -21,5 +22,6 @@ export function sign(message: Uint8Array, secretKey: Uint8Array) {
   //   for (var i = 0; i < sig.length; i++) sig[i] = signedMsg[i];
   //   return sig;
   // };
-  return nacl.sign.detached(message, secretKey);
+  // symbol = SHA512, NEM = keccak_512 であり、本 SDK では SHA 512 を取得
+  return nacl.sign.detached(message, secretKey, "sha512");
 }
