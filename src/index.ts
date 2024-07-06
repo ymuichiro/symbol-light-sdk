@@ -1,37 +1,83 @@
-import { generateKeypair, sign } from "./services/keypair";
-import { strGenerationHashToUint8Array } from "./services/generationHashSeed";
+import { sha512 } from "@noble/hashes/sha512";
+
+import { nacl } from "./services/nacl";
+import { createPrivateKey } from "./services/privateKey";
 import { strTransactonSerializedPayloadToUint8Array } from "./services/transaction";
+import { hexToUint8Array, uint8arrayToHex } from "./services/util";
+import { Size } from "./services/config";
 
-const pair = generateKeypair();
+export class SymbolKeypair {
+  public readonly pair: nacl.sign.keyPair.KeyPair;
 
-const strGenerationHashSeed = "49D6E1CE276A85B70EAFE52349AACCA389302E7A9754BCF1221E79494FC665A4";
-const strSelializedTransaction =
-  "b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000087da603e7be5656c45692d5fc7f6d0ef8f24bb7a5c10ed5fda8c5cfbc49fcbc8000000000198544140420f00000000004f0047c709000000988e1191a25a88142c2fb3f69787576e3dc713efc1ce4de90000010000000000cc403c7a113bdf7c40420f0000000000";
+  public constructor(privateKey: string | Uint8Array) {
+    if (typeof privateKey === "string") {
+      this.pair = nacl.sign.keyPair.fromSeed(hexToUint8Array(Size.privateKey, privateKey), sha512);
+    } else {
+      if (privateKey.length !== 32) {
+        throw new Error("The input must be a 32-byte (64 characters) hex string.");
+      }
+      this.pair = nacl.sign.keyPair.fromSeed(privateKey, sha512);
+    }
+  }
 
-// 文字列で受け取った場合はUint8Arrayに変換する。Uint8Arrayで受け取った場合は、そのまま使う。
-const generationHash: Uint8Array = strGenerationHashToUint8Array(strGenerationHashSeed);
-const selializedTransaction = strTransactonSerializedPayloadToUint8Array(strSelializedTransaction);
+  public static createNewKeyPair(): SymbolKeypair {
+    return new SymbolKeypair(createPrivateKey());
+  }
 
-const data = new Uint8Array([...generationHash, ...selializedTransaction]);
+  public get publicKey(): string {
+    return uint8arrayToHex(Size.publicKey, this.pair.publicKey).toUpperCase();
+  }
 
-const signature = sign(data, pair.secretKey);
-console.log(signature);
+  public get privateKey(): string {
+    return uint8arrayToHex(Size.privateKey, this.pair.secretKey).toUpperCase();
+  }
 
-// static attachSignature(transaction, signature) {
-//   transaction.signature = new nc.Signature(signature.bytes);
+  public sign(serializedTransaction: string | Uint8Array, generationHashSeed: string | Uint8Array): string {
+    const __generationHashSeed: Uint8Array =
+      typeof generationHashSeed === "string"
+        ? hexToUint8Array(Size.generationHashSeed, generationHashSeed)
+        : generationHashSeed;
 
-//   const transactionHex = uint8ToHex(this.toNonVerifiableTransaction(transaction).serialize());
-//   const signatureHex = signature.toString();
-//   const jsonPayload = `{"data":"${transactionHex}", "signature":"${signatureHex}"}`;
-//   return jsonPayload;
-// }
+    const __serializedTransaction: Uint8Array =
+      typeof serializedTransaction === "string"
+        ? strTransactonSerializedPayloadToUint8Array(serializedTransaction)
+        : serializedTransaction;
 
-function uint8ArrayToHex(uint8Array: Uint8Array) {
-  return Array.from(uint8Array)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+    const signed = nacl.sign.detached(
+      new Uint8Array([...__generationHashSeed, ...__serializedTransaction]),
+      this.pair.secretKey,
+      sha512
+    );
+
+    return uint8arrayToHex(Size.signature, signed).toUpperCase();
+  }
+
+  public static verify(
+    serializedTransaction: string | Uint8Array,
+    generationHashSeed: string | Uint8Array,
+    signature: string | Uint8Array,
+    publicKey: string | Uint8Array
+  ): boolean {
+    const __generationHashSeed: Uint8Array =
+      typeof generationHashSeed === "string"
+        ? hexToUint8Array(Size.generationHashSeed, generationHashSeed)
+        : generationHashSeed;
+
+    const __serializedTransaction: Uint8Array =
+      typeof serializedTransaction === "string"
+        ? strTransactonSerializedPayloadToUint8Array(serializedTransaction)
+        : serializedTransaction;
+
+    const __signature: Uint8Array =
+      typeof signature === "string" ? hexToUint8Array(Size.signature, signature) : signature;
+    const __publicKey: Uint8Array =
+      typeof publicKey === "string" ? hexToUint8Array(Size.publicKey, publicKey) : publicKey;
+
+    return nacl.sign.detached.verify(
+      new Uint8Array([...__generationHashSeed, ...__serializedTransaction]),
+      __signature,
+      __publicKey,
+      sha512
+    );
+  }
 }
-
-const jsonPayload = `{"data":"${strSelializedTransaction}", "signature":"${uint8ArrayToHex(signature)}"}`;
-
-console.log(jsonPayload);

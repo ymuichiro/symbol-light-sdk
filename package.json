@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
     "test": ""
   },
   "keywords": [
@@ -20,6 +20,6 @@
   "devDependencies": {
     "@types/node": "^20.14.9",
     "jest": "^29.7.0",
-    "symbol-sdk": "^3.2.2"
+    "typescript": "^5.5.3"
   }
 }

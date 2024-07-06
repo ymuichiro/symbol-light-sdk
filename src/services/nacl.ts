@@ -3,80 +3,57 @@
 // - pruned to include minimal dependencies
 // - ES6
 
-/* eslint-disable
-	comma-spacing,
-	computed-property-spacing,
-	curly,
-	func-style,
-	indent,
-	keyword-spacing,
-	max-len,
-	no-mixed-operators,
-	no-mixed-spaces-and-tabs,
-	no-multi-spaces,
-	no-underscore-dangle,
-	no-var,
-	nonblock-statement-body-position,
-	object-curly-spacing,
-	one-var,
-	one-var-declaration-per-line,
-	space-before-function-paren,
-	space-infix-ops,
-	vars-on-top,
-	yoda,
-	jsdoc/require-jsdoc
-*/
+import { sha512 } from "@noble/hashes/sha512";
 
-var gf = function (init) {
-  var i,
-    r = new Float64Array(16);
+const gf = function (init?: number[]): Float64Array {
+  let i: number | undefined;
+  const r = new Float64Array(16);
   if (init) for (i = 0; i < init.length; i++) r[i] = init[i];
   return r;
 };
 
-var _9 = new Uint8Array(32);
+const _9: Uint8Array = new Uint8Array(32);
 _9[0] = 9;
 
-var gf0 = gf(),
-  gf1 = gf([1]),
-  D = gf([
-    0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f,
-    0x6cee, 0x5203,
-  ]),
-  D2 = gf([
-    0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df,
-    0xd9dc, 0x2406,
-  ]),
-  X = gf([
-    0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e,
-    0x36d3, 0x2169,
-  ]),
-  Y = gf([
-    0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666,
-    0x6666, 0x6666,
-  ]),
-  I = gf([
-    0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1,
-    0x2480, 0x2b83,
-  ]);
+const gf0: Float64Array = gf();
+const gf1: Float64Array = gf([1]);
+const D: Float64Array = gf([
+  0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f,
+  0x6cee, 0x5203,
+]);
+const D2: Float64Array = gf([
+  0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df,
+  0xd9dc, 0x2406,
+]);
+const X: Float64Array = gf([
+  0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e,
+  0x36d3, 0x2169,
+]);
+const Y: Float64Array = gf([
+  0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666,
+  0x6666, 0x6666,
+]);
+const I: Float64Array = gf([
+  0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1,
+  0x2480, 0x2b83,
+]);
 
-function vn(x, xi, y, yi, n) {
+function vn(x: Uint8Array, xi: number, y: Uint8Array, yi: number, n: number): number {
   var i,
     d = 0;
   for (i = 0; i < n; i++) d |= x[xi + i] ^ y[yi + i];
   return (1 & ((d - 1) >>> 8)) - 1;
 }
 
-function crypto_verify_32(x, xi, y, yi) {
+function crypto_verify_32(x: Uint8Array, xi: number, y: Uint8Array, yi: number): number {
   return vn(x, xi, y, yi, 32);
 }
 
-function set25519(r, a) {
-  var i;
-  for (i = 0; i < 16; i++) r[i] = a[i] | 0;
+function set25519(r: Float64Array, a: Float64Array): void {
+  for (let i = 0; i < 16; i++) r[i] = a[i] | 0;
 }
 
-function car25519(o) {
+function car25519(o: Float64Array): void {
   var i,
     v,
     c = 1;
@@ -88,20 +65,20 @@ function car25519(o) {
   o[0] += c - 1 + 37 * (c - 1);
 }
 
-function sel25519(p, q, b) {
-  var t,
+function sel25519(p: Float64Array, q: Float64Array, b: number): void {
+  let t,
     c = ~(b - 1);
-  for (var i = 0; i < 16; i++) {
+  for (let i = 0; i < 16; i++) {
     t = c & (p[i] ^ q[i]);
     p[i] ^= t;
     q[i] ^= t;
   }
 }
 
-function pack25519(o, n) {
-  var i, j, b;
-  var m = gf(),
-    t = gf();
+function pack25519(o: Uint8Array, n: Float64Array): void {
+  let i, j, b;
+  const m = gf();
+  const t = gf();
   for (i = 0; i < 16; i++) t[i] = n[i];
   car25519(t);
   car25519(t);
@@ -123,36 +100,36 @@ function pack25519(o, n) {
   }
 }
 
-function neq25519(a, b) {
-  var c = new Uint8Array(32),
-    d = new Uint8Array(32);
+function neq25519(a: Float64Array, b: Float64Array): number {
+  const c = new Uint8Array(32);
+  const d = new Uint8Array(32);
   pack25519(c, a);
   pack25519(d, b);
   return crypto_verify_32(c, 0, d, 0);
 }
 
-function par25519(a) {
-  var d = new Uint8Array(32);
+function par25519(a: Float64Array): number {
+  const d = new Uint8Array(32);
   pack25519(d, a);
   return d[0] & 1;
 }
 
-function unpack25519(o, n) {
+function unpack25519(o: Float64Array, n: Uint8Array): void {
   var i;
   for (i = 0; i < 16; i++) o[i] = n[2 * i] + (n[2 * i + 1] << 8);
   o[15] &= 0x7fff;
 }
 
-function A(o, a, b) {
+function A(o: Float64Array, a: Float64Array, b: Float64Array): void {
   for (var i = 0; i < 16; i++) o[i] = a[i] + b[i];
 }
 
-function Z(o, a, b) {
+function Z(o: Float64Array, a: Float64Array, b: Float64Array): void {
   for (var i = 0; i < 16; i++) o[i] = a[i] - b[i];
 }
 
-function M(o, a, b) {
-  var v,
+function M(o: Float64Array, a: Float64Array, b: Float64Array): void {
+  let v,
     c,
     t0 = 0,
     t1 = 0,
@@ -614,13 +591,13 @@ function M(o, a, b) {
   o[15] = t15;
 }
 
-function S(o, a) {
+function S(o: Float64Array, a: Float64Array): void {
   M(o, a, a);
 }
 
-function inv25519(o, i) {
-  var c = gf();
-  var a;
+function inv25519(o: Float64Array, i: Float64Array): void {
+  const c: Float64Array = gf();
+  let a: number | undefined;
   for (a = 0; a < 16; a++) c[a] = i[a];
   for (a = 253; a >= 0; a--) {
     S(c, c);
@@ -629,9 +606,9 @@ function inv25519(o, i) {
   for (a = 0; a < 16; a++) o[a] = c[a];
 }
 
-function pow2523(o, i) {
-  var c = gf();
-  var a;
+function pow2523(o: Float64Array, i: Float64Array): void {
+  const c = gf();
+  let a: number | undefined;
   for (a = 0; a < 16; a++) c[a] = i[a];
   for (a = 250; a >= 0; a--) {
     S(c, c);
@@ -640,7 +617,7 @@ function pow2523(o, i) {
   for (a = 0; a < 16; a++) o[a] = c[a];
 }
 
-function crypto_hash(out, m, n, hasher) {
+function crypto_hash(out: Uint8Array, m: Uint8Array, n: number, hasher: typeof sha512) {
   const hashBuilder = hasher.create();
   hashBuilder.update(m.subarray(0, n));
   const hash = hashBuilder.digest();
@@ -650,16 +627,16 @@ function crypto_hash(out, m, n, hasher) {
   return 0;
 }
 
-function add(p, q) {
-  var a = gf(),
-    b = gf(),
-    c = gf(),
-    d = gf(),
-    e = gf(),
-    f = gf(),
-    g = gf(),
-    h = gf(),
-    t = gf();
+function add(p: Float64Array[], q: Float64Array[]): void {
+  let a: Float64Array = gf();
+  let b: Float64Array = gf();
+  let c: Float64Array = gf();
+  let d: Float64Array = gf();
+  let e: Float64Array = gf();
+  let f: Float64Array = gf();
+  let g: Float64Array = gf();
+  let h: Float64Array = gf();
+  let t: Float64Array = gf();
 
   Z(a, p[1], p[0]);
   Z(t, q[1], q[0]);
@@ -682,17 +659,17 @@ function add(p, q) {
   M(p[3], e, h);
 }
 
-function cswap(p, q, b) {
+function cswap(p: Float64Array[], q: Float64Array[], b: number): void {
   var i;
   for (i = 0; i < 4; i++) {
     sel25519(p[i], q[i], b);
   }
 }
 
-function pack(r, p) {
-  var tx = gf(),
-    ty = gf(),
-    zi = gf();
+function pack(r: Uint8Array, p: Float64Array[]): void {
+  const tx = gf();
+  const ty = gf();
+  const zi = gf();
   inv25519(zi, p[2]);
   M(tx, p[0], zi);
   M(ty, p[1], zi);
@@ -700,8 +677,8 @@ function pack(r, p) {
   r[31] ^= par25519(tx) << 7;
 }
 
-function scalarmult(p, q, s) {
-  var b, i;
+function scalarmult(p: Float64Array[], q: Float64Array[], s: Uint8Array): void {
+  let b, i;
   set25519(p[0], gf0);
   set25519(p[1], gf1);
   set25519(p[2], gf1);
@@ -715,8 +692,8 @@ function scalarmult(p, q, s) {
   }
 }
 
-function scalarbase(p, s) {
-  var q = [gf(), gf(), gf(), gf()];
+function scalarbase(p: Float64Array[], s: Uint8Array): void {
+  const q: Float64Array[] = [gf(), gf(), gf(), gf()];
   set25519(q[0], X);
   set25519(q[1], Y);
   set25519(q[2], gf1);
@@ -724,10 +701,9 @@ function scalarbase(p, s) {
   scalarmult(p, q, s);
 }
 
-function crypto_sign_keypair(pk, sk, hasher) {
-  var d = new Uint8Array(64);
-  var p = [gf(), gf(), gf(), gf()];
-  var i;
+function crypto_sign_keypair(pk: Uint8Array, sk: Uint8Array, hasher: typeof sha512) {
+  const d: Uint8Array = new Uint8Array(64);
+  const p: Float64Array[] = [gf(), gf(), gf(), gf()];
 
   crypto_hash(d, sk, 32, hasher);
   d[0] &= 248;
@@ -737,16 +713,16 @@ function crypto_sign_keypair(pk, sk, hasher) {
   scalarbase(p, d);
   pack(pk, p);
 
-  for (i = 0; i < 32; i++) sk[i + 32] = pk[i];
+  for (let i = 0; i < 32; i++) sk[i + 32] = pk[i];
   return 0;
 }
 
-var L = new Float64Array([
+const L: Float64Array = new Float64Array([
   0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0x10,
 ]);
 
-function modL(r, x) {
+function modL(r: Uint8Array, x: Float64Array): void {
   var carry, i, j, k;
   for (i = 63; i >= 32; --i) {
     carry = 0;
@@ -771,7 +747,7 @@ function modL(r, x) {
   }
 }
 
-function reduce(r) {
+function reduce(r: Uint8Array): void {
   var x = new Float64Array(64),
     i;
   for (i = 0; i < 64; i++) x[i] = r[i];
@@ -780,21 +756,21 @@ function reduce(r) {
 }
 
 // Note: difference from C - smlen returned, not passed as argument.
-function crypto_sign(sm, m, n, sk, hasher) {
-  var d = new Uint8Array(64),
-    h = new Uint8Array(64),
-    r = new Uint8Array(64);
-  var i,
-    j,
-    x = new Float64Array(64);
-  var p = [gf(), gf(), gf(), gf()];
+function crypto_sign(sm: Uint8Array, m: Uint8Array, n: number, sk: Uint8Array, hasher: typeof sha512) {
+  const d = new Uint8Array(64);
+  const h = new Uint8Array(64);
+  const r = new Uint8Array(64);
+  let i: number | undefined;
+  let j: number | undefined;
+  const x = new Float64Array(64);
+  const p = [gf(), gf(), gf(), gf()];
 
   crypto_hash(d, sk, 32, hasher);
   d[0] &= 248;
   d[31] &= 127;
   d[31] |= 64;
 
-  var smlen = n + 64;
+  const smlen = n + 64;
   for (i = 0; i < n; i++) sm[64 + i] = m[i];
   for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
 
@@ -819,7 +795,7 @@ function crypto_sign(sm, m, n, sk, hasher) {
   return smlen;
 }
 
-function unpackneg(r, p) {
+function unpackneg(r: Float64Array[], p: Uint8Array): number {
   var t = gf(),
     chk = gf(),
     num = gf(),
@@ -861,12 +837,12 @@ function unpackneg(r, p) {
   return 0;
 }
 
-function crypto_sign_open(m, sm, n, pk, hasher) {
-  var i;
-  var t = new Uint8Array(32),
-    h = new Uint8Array(64);
-  var p = [gf(), gf(), gf(), gf()],
-    q = [gf(), gf(), gf(), gf()];
+function crypto_sign_open(m: Uint8Array, sm: Uint8Array, n: number, pk: Uint8Array, hasher: typeof sha512): number {
+  let i: number | undefined;
+  let t: Uint8Array = new Uint8Array(32);
+  let h: Uint8Array = new Uint8Array(64);
+  let p: Float64Array[] = [gf(), gf(), gf(), gf()];
+  let q: Float64Array[] = [gf(), gf(), gf(), gf()];
 
   if (n < 64) return -1;
 
@@ -882,7 +858,7 @@ function crypto_sign_open(m, sm, n, pk, hasher) {
   add(p, q);
   pack(t, p);
 
-  n -= 64; // eslint-disable-line no-param-reassign
+  n -= 64;
   if (crypto_verify_32(sm, 0, t, 0)) {
     for (i = 0; i < n; i++) m[i] = 0;
     return -1;
@@ -892,71 +868,67 @@ function crypto_sign_open(m, sm, n, pk, hasher) {
   return n;
 }
 
-var crypto_sign_BYTES = 64,
-  crypto_sign_PUBLICKEYBYTES = 32,
-  crypto_sign_SECRETKEYBYTES = 64,
-  crypto_sign_SEEDBYTES = 32;
+const crypto_sign_BYTES: number = 64;
+const crypto_sign_PUBLICKEYBYTES: number = 32;
+const crypto_sign_SECRETKEYBYTES: number = 64;
+const crypto_sign_SEEDBYTES: number = 32;
 
-const nacl = {};
-nacl.lowlevel = {
-  crypto_hash,
-
-  gf,
-  L,
-  Z,
-  modL,
-  scalarmult,
-  neq25519,
-  par25519,
-  inv25519,
-  pack,
-  unpackneg,
-};
-
-/* High-level API */
-
-function checkArrayTypes(...params) {
+function checkArrayTypes(...params: Uint8Array[]): void {
   for (var i = 0; i < params.length; i++) {
     if (!(params[i] instanceof Uint8Array)) throw new TypeError("unexpected type, use Uint8Array");
   }
 }
 
-nacl.sign = function (msg, secretKey, hasher) {
-  checkArrayTypes(msg, secretKey);
-  if (secretKey.length !== crypto_sign_SECRETKEYBYTES) throw new Error("bad secret key size");
-  var signedMsg = new Uint8Array(crypto_sign_BYTES + msg.length);
-  crypto_sign(signedMsg, msg, msg.length, secretKey, hasher);
-  return signedMsg;
-};
+/* ------------ High-level API ------------ */
+export namespace nacl {
+  export function sign(msg: Uint8Array, secretKey: Uint8Array, hasher: typeof sha512): Uint8Array {
+    checkArrayTypes(msg, secretKey);
+    if (secretKey.length !== crypto_sign_SECRETKEYBYTES) throw new Error("bad secret key size");
+    var signedMsg = new Uint8Array(crypto_sign_BYTES + msg.length);
+    crypto_sign(signedMsg, msg, msg.length, secretKey, hasher);
+    return signedMsg;
+  }
 
-nacl.sign.detached = function (msg, secretKey, hasher) {
-  var signedMsg = nacl.sign(msg, secretKey, hasher);
-  var sig = new Uint8Array(crypto_sign_BYTES);
-  for (var i = 0; i < sig.length; i++) sig[i] = signedMsg[i];
-  return sig;
-};
+  export namespace sign {
+    /** 64 byte signature for Symbol */
+    export function detached(msg: Uint8Array, secretKey: Uint8Array, hasher: typeof sha512): Uint8Array {
+      var signedMsg = sign(msg, secretKey, hasher);
+      var sig = new Uint8Array(crypto_sign_BYTES);
+      for (var i = 0; i < sig.length; i++) sig[i] = signedMsg[i];
+      return sig;
+    }
 
-nacl.sign.detached.verify = function (msg, sig, publicKey, hasher) {
-  checkArrayTypes(msg, sig, publicKey);
-  if (sig.length !== crypto_sign_BYTES) throw new Error("bad signature size");
-  if (publicKey.length !== crypto_sign_PUBLICKEYBYTES) throw new Error("bad public key size");
-  var sm = new Uint8Array(crypto_sign_BYTES + msg.length);
-  var m = new Uint8Array(crypto_sign_BYTES + msg.length);
-  var i;
-  for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
-  for (i = 0; i < msg.length; i++) sm[i + crypto_sign_BYTES] = msg[i];
-  return crypto_sign_open(m, sm, sm.length, publicKey, hasher) >= 0;
-};
+    export namespace detached {
+      export function verify(msg: Uint8Array, sig: Uint8Array, publicKey: Uint8Array, hasher: typeof sha512): boolean {
+        checkArrayTypes(msg, sig, publicKey);
+        if (sig.length !== crypto_sign_BYTES) throw new Error("bad signature size");
+        if (publicKey.length !== crypto_sign_PUBLICKEYBYTES) throw new Error("bad public key size");
+        var sm = new Uint8Array(crypto_sign_BYTES + msg.length);
+        var m = new Uint8Array(crypto_sign_BYTES + msg.length);
+        var i;
+        for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
+        for (i = 0; i < msg.length; i++) sm[i + crypto_sign_BYTES] = msg[i];
+        return crypto_sign_open(m, sm, sm.length, publicKey, hasher) >= 0;
+      }
+    }
 
-nacl.sign.keyPair = {};
-nacl.sign.keyPair.fromSeed = function (seed, hasher) {
-  checkArrayTypes(seed);
-  if (seed.length !== crypto_sign_SEEDBYTES) throw new Error("bad seed size");
-  var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
-  var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
-  for (var i = 0; i < 32; i++) sk[i] = seed[i];
-  crypto_sign_keypair(pk, sk, hasher);
-  return { publicKey: pk, secretKey: sk };
-};
+    export namespace keyPair {
+      export interface KeyPair {
+        publicKey: Uint8Array;
+        secretKey: Uint8Array;
+      }
+
+      export function fromSeed(seed: Uint8Array, hasher: typeof sha512): KeyPair {
+        checkArrayTypes(seed);
+        if (seed.length !== crypto_sign_SEEDBYTES) throw new Error("bad seed size");
+        var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+        var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+        for (var i = 0; i < 32; i++) sk[i] = seed[i];
+        crypto_sign_keypair(pk, sk, hasher);
+        return { publicKey: pk, secretKey: sk };
+      }
+    }
+  }
+}
 
 export default nacl;
