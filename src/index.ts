@@ -1,22 +1,20 @@
-import { sha512 } from "@noble/hashes/sha512";
-
-import { nacl } from "./services/nacl";
+import nacl from "./services/nacl";
 import { createPrivateKey } from "./services/privateKey";
 import { strTransactonSerializedPayloadToUint8Array } from "./services/transaction";
 import { hexToUint8Array, uint8arrayToHex } from "./services/util";
 import { Size } from "./services/config";
 
 export class SymbolKeypair {
-  public readonly pair: nacl.sign.keyPair.KeyPair;
+  public readonly pair: nacl.SignKeyPair;
 
   public constructor(privateKey: string | Uint8Array) {
     if (typeof privateKey === "string") {
-      this.pair = nacl.sign.keyPair.fromSeed(hexToUint8Array(Size.privateKey, privateKey), sha512);
+      this.pair = nacl.sign.keyPair.fromSeed(hexToUint8Array(Size.privateKey, privateKey));
     } else {
       if (privateKey.length !== 32) {
         throw new Error("The input must be a 32-byte (64 characters) hex string.");
       }
-      this.pair = nacl.sign.keyPair.fromSeed(privateKey, sha512);
+      this.pair = nacl.sign.keyPair.fromSeed(privateKey);
     }
   }
 
@@ -45,8 +43,7 @@ export class SymbolKeypair {
 
     const signed = nacl.sign.detached(
       new Uint8Array([...__generationHashSeed, ...__serializedTransaction]),
-      this.pair.secretKey,
-      sha512
+      this.pair.secretKey
     );
 
     return uint8arrayToHex(Size.signature, signed).toUpperCase();
@@ -76,8 +73,7 @@ export class SymbolKeypair {
     return nacl.sign.detached.verify(
       new Uint8Array([...__generationHashSeed, ...__serializedTransaction]),
       __signature,
-      __publicKey,
-      sha512
+      __publicKey
     );
   }
 }
