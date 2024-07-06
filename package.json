@@ -1,22 +1,49 @@
 {
-  "name": "symbol-light-sdk",
-  "version": "0.0.1",
-  "description": "",
-  "main": "./dist/index.js",
+  "name": "@symbol-blockchain-community/symbol-light-sdk",
+  "version": "0.0.2",
+  "description": "This is a lightweight SDK for signing transactions on the Symbol blockchain. ",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "homepage": "https://symbol-community.com",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
+    }
+  },
   "scripts": {
-    "build": "rm -rf dist && tsc",
-    "test": ""
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs",
+    "build:esm": "tsc --module NodeNext --moduleResolution nodenext --outDir dist/esm",
+    "build": "rm -rf dist && npm run build:cjs && npm run build:esm",
+    "lint": "prettier --write \"**/*.{ts,js,md,json}\""
   },
   "keywords": [
-    "Symbol",
-    "SDK",
-    "Blockchain"
+    "symbol",
+    "xym",
+    "nem",
+    "sdk",
+    "expo",
+    "crypto",
+    "blockchain"
   ],
   "author": "ym.u.ichiro@gmail.com",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.14.9",
     "jest": "^29.7.0",
+    "prettier": "^3.3.2",
     "typescript": "^5.5.3"
-  }
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "package-lock.json",
+    "README.md",
+    "LICENSE"
+  ]
 }

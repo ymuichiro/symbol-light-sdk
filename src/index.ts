@@ -43,7 +43,7 @@ export class SymbolKeypair {
 
     const signed = nacl.sign.detached(
       new Uint8Array([...__generationHashSeed, ...__serializedTransaction]),
-      this.pair.secretKey
+      this.pair.secretKey,
     );
 
     return uint8arrayToHex(Size.signature, signed).toUpperCase();
@@ -53,7 +53,7 @@ export class SymbolKeypair {
     serializedTransaction: string | Uint8Array,
     generationHashSeed: string | Uint8Array,
     signature: string | Uint8Array,
-    publicKey: string | Uint8Array
+    publicKey: string | Uint8Array,
   ): boolean {
     const __generationHashSeed: Uint8Array =
       typeof generationHashSeed === "string"
@@ -73,7 +73,7 @@ export class SymbolKeypair {
     return nacl.sign.detached.verify(
       new Uint8Array([...__generationHashSeed, ...__serializedTransaction]),
       __signature,
-      __publicKey
+      __publicKey,
     );
   }
 }
